@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeTraverse", "deps\CodeTr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zydis", "deps\CodeTraverse\zydis\msvc\zydis\Zydis.vcxproj", "{88A23124-5640-35A0-B890-311D7A67A7D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThePatcherWPF", "ThePatcherWPF\ThePatcherWPF.csproj", "{74715FA9-DAF4-4979-A0D7-333D40CADAA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,18 @@ Global
 		{88A23124-5640-35A0-B890-311D7A67A7D2}.Release|x64.Build.0 = Release MT|x64
 		{88A23124-5640-35A0-B890-311D7A67A7D2}.Release|x86.ActiveCfg = Release MT DLL|Win32
 		{88A23124-5640-35A0-B890-311D7A67A7D2}.Release|x86.Build.0 = Release MT DLL|Win32
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|x64.Build.0 = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Debug|x86.Build.0 = Debug|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|x64.ActiveCfg = Release|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|x64.Build.0 = Release|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|x86.ActiveCfg = Release|Any CPU
+		{74715FA9-DAF4-4979-A0D7-333D40CADAA3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
