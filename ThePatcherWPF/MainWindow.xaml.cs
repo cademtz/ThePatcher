@@ -117,7 +117,9 @@ namespace ThePatcherWPF
 
 			scriptDesc.Content = script.Desc.Replace("\\n", Environment.NewLine);
 
-			if (script.Image != null)
+			if (script.Image == null)
+				scriptImage.Source = null;
+			else
 				scriptImage.Source = new BitmapImage(new Uri(script.Image));//Image.FromFile(script.Image);
 		}
     }
