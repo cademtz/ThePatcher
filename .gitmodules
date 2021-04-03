@@ -1,0 +1,6 @@
+[submodule "deps/CodeTraverse"]
+	path = deps/CodeTraverse
+	url = https://github.com/cademtz/CodeTraverse.git
+[submodule "deps/minilua"]
+	path = deps/minilua
+	url = https://github.com/edubart/minilua.git
