@@ -26,6 +26,7 @@ public:
 	static int _pe_nexps(lua_State* L);
 	static int _pe_exp(lua_State* L);
 	static int _pe_patch(lua_State* L);
+	static int _pe_patchhex(lua_State* L);
 	static int _pe_save(lua_State* L);
 
 	static int _ct_new(lua_State* L);

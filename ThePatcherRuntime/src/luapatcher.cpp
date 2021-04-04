@@ -28,6 +28,7 @@ static const FuncPair pe_api_funcs[] = {
 	{"_nexps",		&CLuaPatcher::_pe_nexps},
 	{"_exp",		&CLuaPatcher::_pe_exp},
 	{"_patch",		&CLuaPatcher::_pe_patch},
+	{"_patchhex",	&CLuaPatcher::_pe_patchhex},
 	{"_save",		&CLuaPatcher::_pe_save},
 	{NULL, NULL}
 };
@@ -200,7 +201,7 @@ int CLuaPatcher::_pe_exp(lua_State* L)
 	return 1;
 }
 
-int CLuaPatcher::_pe_patch(lua_State* L)
+int CLuaPatcher::_pe_patchhex(lua_State* L)
 {
 	CPortableExecutable* pe;
 	uint64_t* addr;
@@ -211,7 +212,7 @@ int CLuaPatcher::_pe_patch(lua_State* L)
 	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
 		len <= 0 ||
 		!pe->IsInBounds(*(void**)addr, len))
-		return fprintf(stderr, "_pe_patch: Bad arguments\n"), 0;
+		return fprintf(stderr, "_pe_patchhex: Bad arguments\n"), 0;
 
 	pos = *(char**)addr;
 
@@ -230,15 +231,40 @@ int CLuaPatcher::_pe_patch(lua_State* L)
 		else if (HEXCHAR_ISHEX(str[i]) && HEXCHAR_ISHEX(str[i + 1]))
 		{
 			if (!pe->IsInBounds(pos, 1))
-				return fprintf(stderr, "_pe_patch: Patch bytes went out of PE bounds\n"), 0;
+				return fprintf(stderr, "_pe_patchhex: Patch bytes went out of PE bounds\n"), 0;
 			
 			*pos = (HEXCHAR_TOHEX(str[i]) << 4) | HEXCHAR_TOHEX(str[i + 1]);
 			++i;
 			++pos;
 		}
 		else
-			return fprintf(stderr, "_pe_patch: Bad format '%s' (char %d)\n", str, i), 0;
+			return fprintf(stderr, "_pe_patchhex: Bad format '%s' (char %d)\n", str, i), 0;
 	}
+
+	return 0;
+}
+
+int CLuaPatcher::_pe_patch(lua_State* L)
+{
+	CPortableExecutable* pe;
+	uint64_t* addr;
+	size_t len = 1;
+	const char* str;
+	char* pos;
+
+	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
+		len <= 0 ||
+		!pe->IsInBounds(*(void**)addr, len))
+		return fprintf(stderr, "_pe_patch: Bad arguments\n"), 0;
+
+	pos = *(char**)addr;
+
+	lua_tolstring(L, -1, &len);
+
+	if (!pe->IsInBounds(pos + len, 1))
+		return fprintf(stderr, "_pe_patch: Patch bytes went out of PE bounds\n"), 0;
+	
+	memcpy(pos, str, len);
 
 	return 0;
 }

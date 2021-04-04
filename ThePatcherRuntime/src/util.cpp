@@ -70,3 +70,11 @@ char* Util::OpenFileDialog(const char* pszTitle)
 	
 	return szFile;
 }
+
+void Util::DumpStack(lua_State* L)
+{
+	printf("Dumped stack: ");
+	int top = lua_gettop(L);
+	for (int i = 0; i < top; i++)
+		printf(i == top - 1 ? "%s\n" : "%s, ", lua_typename(L, lua_type(L, i)));
+}

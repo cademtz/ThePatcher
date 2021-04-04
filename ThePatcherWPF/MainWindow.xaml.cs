@@ -119,8 +119,12 @@ namespace ThePatcherWPF
 
         private void executeBtn_Click(object sender, RoutedEventArgs e)
 		{
+			if (scriptList.SelectedIndex == -1)
+				return;
+
 			var scripts = (List<PatcherScript>)scriptList.ItemsSource;
 			var script = scripts[scriptList.SelectedIndex];
+
 			String local = Directory.GetCurrentDirectory() + "/ThePatcherRuntime.exe";
 			Process.Start(local, "\"" + script.Script + "\"");
 		}
