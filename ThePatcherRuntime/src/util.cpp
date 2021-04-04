@@ -5,8 +5,10 @@
 // Reason: Resource files
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <shobjidl.h> 
+#include <commdlg.h>
 
-char* Util_GetFileData(const char* szFile, size_t* out_Len)
+char* Util::GetFileData(const char* szFile, size_t* out_Len)
 {
 	FILE* file;
 	size_t len;
@@ -28,7 +30,7 @@ char* Util_GetFileData(const char* szFile, size_t* out_Len)
 	return buf;
 }
 
-char* Util_GetResourceData(int ResId, const char* ResType, size_t* out_Len)
+char* Util::GetResourceData(int ResId, const char* ResType, size_t* out_Len)
 {
 	HMODULE hMod;
 	HRSRC	hResInfo;
@@ -50,4 +52,21 @@ char* Util_GetResourceData(int ResId, const char* ResType, size_t* out_Len)
 
 	*out_Len = (size_t)size;
     return (char*)raw;
+}
+
+char* Util::OpenFileDialog(const char* pszTitle)
+{
+	char szFile[MAX_PATH] = { 0 }, dir[MAX_PATH] = { 0 };
+
+	OPENFILENAME file;
+	ZeroMemory(&file, sizeof(file));
+	file.lStructSize = sizeof(file);
+	file.lpstrFile = szFile;
+	file.nMaxFile = sizeof(szFile);
+	file.lpstrTitle = pszTitle ? pszTitle : "Patcher file open dialog";
+
+	if (!GetOpenFileNameA(&file))
+		return NULL;
+	
+	return szFile;
 }

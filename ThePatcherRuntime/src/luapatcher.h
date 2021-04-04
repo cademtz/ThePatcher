@@ -39,6 +39,9 @@ public:
 	static int _ct_traverse(lua_State* L);
 	static int _ct_readstr(lua_State* L);
 
+	static int _dialog_file(lua_State* L);
+	static int _dialog_msgbox(lua_State* L);
+
 private:
 	/**@brief	Ensures pointer is deleted when owning LuaPatcher instance closes */
 	template <typename T>

@@ -16,14 +16,14 @@ int main(int argc, char** argv)
 	const char*	pe_lua;
 	size_t		pe_lua_len;
 
-	if (!(pe_lua = Util_GetResourceData(IDR_LUA_PE, "LUA", &pe_lua_len)))
+	if (!(pe_lua = Util::GetResourceData(IDR_LUA_PE, "LUA", &pe_lua_len)))
 	{
 		perror("Failed to load PortableExecutable.lua");
 		return -1;
 	}
 
 	char* args[] = { argv[0],
-		(char*)R"(C:\ThePatcher\scripts\entrypatch.lua)",
+		argv[1]//(char*)R"(C:\ThePatcher\scripts\entrypatch.lua)",
 	};
 
 	L = luaL_newstate();
