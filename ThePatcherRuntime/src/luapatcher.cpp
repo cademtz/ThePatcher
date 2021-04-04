@@ -46,26 +46,36 @@ static const FuncPair ct_api_funcs[] = {
 	{NULL, NULL}
 };
 
+static const FuncPair dialog_api_funcs[] = {
+	{"_file",	&CLuaPatcher::_dialog_file},
+	{"_msgbox", &CLuaPatcher::_dialog_msgbox},
+	{NULL, NULL}
+};
+
+static const std::pair<const char*, const FuncPair*> apis[] =
+{
+	{ "pe_api",		pe_api_funcs },
+	{ "ct_api",		ct_api_funcs },
+	{ "dialog_api", dialog_api_funcs },
+};
+
 CLuaPatcher::CLuaPatcher(lua_State* L) : m_state(L)
 {
 	lua_pushlightuserdata(L, this);
 	lua_setglobal(L, LUAPATCHER_INST);
 
-	lua_newtable(L);
-	for (const FuncPair* pair = pe_api_funcs; pair->func; ++pair)
+	for (const auto& api : apis)
 	{
-		lua_pushcfunction(L, pair->func);
-		lua_setfield(L, -2, pair->name);
-	}
-	lua_setglobal(L, "pe_api");
+		lua_newtable(L);
 
-	lua_newtable(L);
-	for (const FuncPair* pair = ct_api_funcs; pair->func; ++pair)
-	{
-		lua_pushcfunction(L, pair->func);
-		lua_setfield(L, -2, pair->name);
+		for (const FuncPair* pair = api.second; pair->func; ++pair)
+		{
+			lua_pushcfunction(L, pair->func);
+			lua_setfield(L, -2, pair->name);
+		}
+
+		lua_setglobal(L, api.first);
 	}
-	lua_setglobal(L, "ct_api");
 }
 
 CLuaPatcher::~CLuaPatcher()
@@ -87,7 +97,7 @@ int CLuaPatcher::_pe_new(lua_State* L)
 	if (!minilua_checkargs(L, "si", &fname, &maxsize) || maxsize <= 0)
 		return fprintf(stderr, "_pe_new: Bad arguments\n"), 0;
 
-	if (!(fdata = Util_GetFileData(fname, &flen)))
+	if (!(fdata = Util::GetFileData(fname, &flen)))
 		return fprintf(stderr, "_pe_new: Failed to read file '%s'\n", fname), 0;
 
 	pe = new CPortableExecutable(fdata, flen, maxsize);
@@ -426,6 +436,34 @@ int CLuaPatcher::_ct_readstr(lua_State* L)
 
 	lua_pushstring(L, code->Read_String(*(void**)loc, (size_t)maxlen + 1)); // Include null-terminator in size
 	return 1;
+}
+
+int CLuaPatcher::_dialog_file(lua_State* L)
+{
+	const char* pszTitle = NULL;
+	minilua_checkargs(L, "s", &pszTitle); // Just reading the string easier, argument can be nil
+	char* pszFileLoc = Util::OpenFileDialog(pszTitle);
+
+	if (pszFileLoc == NULL)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushstring(L, pszFileLoc);
+
+	return 1;
+}
+
+int CLuaPatcher::_dialog_msgbox(lua_State* L)
+{
+	const char* pszTitle = NULL;
+	const char* pszContent = NULL;
+	minilua_checkargs(L, "ss", &pszTitle, &pszContent); // Just reading the string easier, argument can be nil
+
+	MessageBoxA(NULL, pszContent, pszTitle, NULL); // Kernel32!MessageBoxA does all of the type-safe checking
+
+	return 0;
 }
 
 void CLuaPatcher::PushInstance(lua_State* L, CLuaManagedPtrBase* Ptr)

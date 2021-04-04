@@ -17,6 +17,7 @@ TRAVERSE_PAGE_CODE_READWRITE =	TRAVERSE_PAGE_CODE + TRAVERSE_PAGE_READWRITE
 
 PortableExecutable = {}
 CodeTraverse = {}
+Dialog = {}
 
 PortableExecutable.__index = PortableExecutable
 CodeTraverse.__index = CodeTraverse
@@ -54,3 +55,6 @@ function CodeTraverse:FindDataStrings(str)	return ct_api._strref(self._inst, str
 function CodeTraverse:Traverse(addr)		return ct_api._traverse(self._inst, addr)	end
 function CodeTraverse:AddPage(addr, len, flags)	return ct_api._addpage(self._inst, addr, len, flags)	end
 function CodeTraverse:ReadString(addr, maxlen)	return ct_api._readstr(self._inst, addr, maxlen)		end
+
+function Dialog.File(title)				return dialog_api._file(title) end
+function Dialog.Msgbox(title, content)	return dialog_api._msgbox(title, content) end
