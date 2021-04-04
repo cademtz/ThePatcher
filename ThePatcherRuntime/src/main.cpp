@@ -55,9 +55,10 @@ int main(int argc, char** argv)
 		err = 1;
 	}
 
-
 	delete patcher;
 	lua_close(L);
+
+	system("pause");
 
 	return err;
 }

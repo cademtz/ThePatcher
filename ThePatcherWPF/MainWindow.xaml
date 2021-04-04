@@ -88,7 +88,7 @@
 			</Border>
 
 		</StackPanel>
-		<Button x:Name="executeBtn" Content="Execute" Click="Button_Click" 
+		<Button x:Name="executeBtn" Content="Execute" Click="executeBtn_Click" 
 				Style="{DynamicResource Hover}" Foreground="#E1E1E1" Background="#1C1C1C" BorderBrush="#3f3f46"
 				HorizontalAlignment="Stretch" Margin="233,0,6,6" VerticalAlignment="Bottom" Height="28"/>
 		<TextBox x:Name="scriptDesc" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True"

@@ -16,6 +16,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zydis", "deps\CodeTraverse\zydis\msvc\zydis\Zydis.vcxproj", "{88A23124-5640-35A0-B890-311D7A67A7D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThePatcherWPF", "ThePatcherWPF\ThePatcherWPF.csproj", "{74715FA9-DAF4-4979-A0D7-333D40CADAA3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C756C2E2-01E5-4336-AD27-A8F42B1B630E} = {C756C2E2-01E5-4336-AD27-A8F42B1B630E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

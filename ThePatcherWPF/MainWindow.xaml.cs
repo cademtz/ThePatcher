@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using ThePatcher;
+using System.Diagnostics;
 
 namespace ThePatcherWPF
 {
@@ -32,6 +33,19 @@ namespace ThePatcherWPF
 			FindScripts();
 
 			scriptList.ItemsSource = ScriptList;
+
+			String local	= Directory.GetCurrentDirectory() + "/ThePatcherRuntime.exe";
+			String compiled = Directory.GetCurrentDirectory() + "/../../../x64/Release/ThePatcherRuntime.exe";
+
+			if (!File.Exists(local))
+				if (File.Exists(compiled))
+					File.Copy(compiled, local);
+
+			if (!File.Exists(local))
+            {
+				MessageBox.Show("Failed to find patcher runtime.", "The Patcher");
+				Environment.Exit(0);
+            }				
 		}
 
         public void FindScripts()
@@ -103,12 +117,15 @@ namespace ThePatcherWPF
 			return count;
 		}
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
+        private void executeBtn_Click(object sender, RoutedEventArgs e)
+		{
+			var scripts = (List<PatcherScript>)scriptList.ItemsSource;
+			var script = scripts[scriptList.SelectedIndex];
+			String local = Directory.GetCurrentDirectory() + "/ThePatcherRuntime.exe";
+			Process.Start(local, "\"" + script.Script + "\"");
+		}
 
-        }
-
-        private void scriptList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void scriptList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 			var scripts = (List<PatcherScript>)scriptList.ItemsSource;
 			var script = scripts[scriptList.SelectedIndex];
@@ -116,11 +133,7 @@ namespace ThePatcherWPF
 			executeBtn.Visibility = Visibility.Visible;
 
 			scriptDesc.Text = script.Desc.Replace("\\n", Environment.NewLine);
-
-			if (script.Image == null)
-				scriptImage.Source = null;
-			else
-				scriptImage.Source = new BitmapImage(new Uri(script.Image));//Image.FromFile(script.Image);
+			scriptImage.Source = script.Image == null ? null : new BitmapImage(new Uri(script.Image));
 		}
     }
 }
