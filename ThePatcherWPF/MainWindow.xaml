@@ -79,18 +79,21 @@
 			</ListBox.ItemTemplate>
 		</ListBox>
 
+		<!--<TextBox Text="sesgz" IsReadOnly="True"
+					 Foreground="#e1e1e1" Background="#1c1c1c" BorderBrush="#3f3f46"/>-->
 		<StackPanel HorizontalAlignment="Stretch" Height="162" Margin="233,6,6,0" VerticalAlignment="Top"
 					Background="#1e1e1e">
 			<Border BorderBrush="#3f3f46" BorderThickness="1">
 			<Image x:Name="scriptImage" HorizontalAlignment="Stretch" Height="160"/>
 			</Border>
+
 		</StackPanel>
 		<Button x:Name="executeBtn" Content="Execute" Click="Button_Click" 
 				Style="{DynamicResource Hover}" Foreground="#E1E1E1" Background="#1C1C1C" BorderBrush="#3f3f46"
 				HorizontalAlignment="Stretch" Margin="233,0,6,6" VerticalAlignment="Bottom" Height="28"/>
-		<Label x:Name="scriptDesc"
+		<TextBox x:Name="scriptDesc" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" IsReadOnly="True"
 			   HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Margin="233,173,6,39"
-			   Background="#1e1e1e" Foreground="#E1E1E1" BorderBrush="#3f3f46" Content="" BorderThickness="1"/>
+			   Background="#1e1e1e" Foreground="#E1E1E1" BorderBrush="#3f3f46" BorderThickness="1"/>
 
 	</Grid>
 </Window>

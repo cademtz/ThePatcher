@@ -115,7 +115,7 @@ namespace ThePatcherWPF
 
 			executeBtn.Visibility = Visibility.Visible;
 
-			scriptDesc.Content = script.Desc.Replace("\\n", Environment.NewLine);
+			scriptDesc.Text = script.Desc.Replace("\\n", Environment.NewLine);
 
 			if (script.Image == null)
 				scriptImage.Source = null;
