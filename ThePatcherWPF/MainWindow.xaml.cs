@@ -34,18 +34,22 @@ namespace ThePatcherWPF
 
 			scriptList.ItemsSource = ScriptList;
 
-			String local	= Directory.GetCurrentDirectory() + "/ThePatcherRuntime.exe";
-			String compiled = Directory.GetCurrentDirectory() + "/../../../x64/Release/ThePatcherRuntime.exe";
-
+			String local	= Path.Combine(Directory.GetCurrentDirectory(), "ThePatcherRuntime.exe");
+			String compiled = Path.Combine(Directory.GetCurrentDirectory(), "x64/Release/ThePatcherRuntime.exe");
+			
 			if (!File.Exists(local))
+			{
 				if (File.Exists(compiled))
+				{
 					File.Copy(compiled, local);
-
-			if (!File.Exists(local))
-            {
-				MessageBox.Show("Failed to find patcher runtime.", "The Patcher");
-				Environment.Exit(0);
-            }				
+				}
+				else
+				{
+					MessageBox.Show("Failed to find patcher runtime.", "The Patcher");
+					Environment.Exit(0);
+				}
+			}
+			
 		}
 
         public void FindScripts()
@@ -88,18 +92,18 @@ namespace ThePatcherWPF
 		/// Zero means the file was not parsed correctly. <br></br>
 		/// Under zero means the file could not be read. <br></br>
 		/// </returns>
-		public int LoadScriptsFile(string FullName)
+		public int LoadScriptsFile(string fullName)
 		{
 			string dir;
 			string text;
 			List<IniSection> ini;
 			int count = 0;
 
-			if (!File.Exists(FullName) || (text = File.ReadAllText(FullName)) == null)
+			if (!File.Exists(fullName) || (text = File.ReadAllText(fullName)) == null)
 				return -1;
 
-			dir = FullName.Substring(0, FullName.LastIndexOf('\\'));
-			text = text.Replace(System.Environment.NewLine, "\n");
+			dir = fullName.Substring(0, fullName.LastIndexOf('\\'));
+			text = text.Replace(Environment.NewLine, "\n");
 
 			if ((ini = IniParse.FromString(text)) == null)
 				return 0;
@@ -125,7 +129,7 @@ namespace ThePatcherWPF
 			var scripts = (List<PatcherScript>)scriptList.ItemsSource;
 			var script = scripts[scriptList.SelectedIndex];
 
-			String local = Directory.GetCurrentDirectory() + "/ThePatcherRuntime.exe";
+			String local = Path.Combine(Directory.GetCurrentDirectory(), "ThePatcherRuntime.exe");
 			Process.Start(local, "\"" + script.Script + "\"");
 		}
 
@@ -137,7 +141,7 @@ namespace ThePatcherWPF
 			executeBtn.Visibility = Visibility.Visible;
 
 			scriptDesc.Text = script.Desc.Replace("\\n", Environment.NewLine);
-			scriptImage.Source = script.Image == null ? null : new BitmapImage(new Uri(script.Image));
+			scriptImage.Source = script.Image = new BitmapImage(new Uri(script.Image)) ?? null;
 		}
     }
 }
