@@ -58,5 +58,6 @@ function CodeTraverse:Traverse(addr)			return ct_api._traverse(self._inst, addr)
 function CodeTraverse:AddPage(addr, len, flags)	return ct_api._addpage(self._inst, addr, len, flags)	end
 function CodeTraverse:ReadString(addr, maxlen)	return ct_api._readstr(self._inst, addr, maxlen)		end
 
-function Dialog.File(title)				return dialog_api._file(title)				end
+-- All args are optional
+function Dialog.File(path, title)		return dialog_api._file(path, title)		end
 function Dialog.Msgbox(title, content)	return dialog_api._msgbox(title, content)	end

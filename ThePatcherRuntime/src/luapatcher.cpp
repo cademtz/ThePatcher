@@ -466,18 +466,13 @@ int CLuaPatcher::_ct_readstr(lua_State* L)
 
 int CLuaPatcher::_dialog_file(lua_State* L)
 {
-	const char* pszTitle = NULL;
-	minilua_checkargs(L, "s", &pszTitle); // Just reading the string easier, argument can be nil
-	char* pszFileLoc = Util::OpenFileDialog(pszTitle);
+	const char* title = NULL, * path = NULL;
+	char buf[MAX_PATH] = { 0 };
 
-	if (pszFileLoc == NULL)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
+	path = lua_tostring(L, -2);
+	title = lua_tostring(L, -1);
 
-	lua_pushstring(L, pszFileLoc);
-
+	lua_pushstring(L, Util::OpenFileDialog(buf, sizeof(buf), title, path)); // LUA handles NULL C strings
 	return 1;
 }
 

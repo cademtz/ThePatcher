@@ -54,21 +54,20 @@ char* Util::GetResourceData(int ResId, const char* ResType, size_t* out_Len)
     return (char*)raw;
 }
 
-char* Util::OpenFileDialog(const char* pszTitle)
+char* Util::OpenFileDialog(char* Buffer, size_t BufLen, const char* Title, const char* InitialDir)
 {
-	char szFile[MAX_PATH] = { 0 }, dir[MAX_PATH] = { 0 };
-
 	OPENFILENAME file;
 	ZeroMemory(&file, sizeof(file));
 	file.lStructSize = sizeof(file);
-	file.lpstrFile = szFile;
-	file.nMaxFile = sizeof(szFile);
-	file.lpstrTitle = pszTitle ? pszTitle : "Patcher file open dialog";
+	file.lpstrFile = Buffer;
+	file.nMaxFile = BufLen;
+	file.lpstrTitle = Title ? Title : "Patcher file open dialog";
+	file.lpstrInitialDir = InitialDir;
 
 	if (!GetOpenFileNameA(&file))
 		return NULL;
 	
-	return szFile;
+	return Buffer;
 }
 
 void Util::DumpStack(lua_State* L)

@@ -16,15 +16,17 @@ int main(int argc, char** argv)
 	const char*	pe_lua;
 	size_t		pe_lua_len;
 
+	if (argc < 2)
+	{
+		perror("Incorrect usage\nThePatcherRuntime <lua file>\n");
+		return -1;
+	}
+
 	if (!(pe_lua = Util::GetResourceData(IDR_LUA_PE, "LUA", &pe_lua_len)))
 	{
 		perror("Failed to load PortableExecutable.lua");
 		return -1;
 	}
-
-	char* args[] = { argv[0],
-		argv[1]//(char*)R"(C:\ThePatcher\scripts\entrypatch.lua)",
-	};
 
 	L = luaL_newstate();
 	luaL_openlibs(L);
@@ -45,11 +47,11 @@ int main(int argc, char** argv)
 	}
 
 	lua_createtable(L, 0, 1);
-	lua_pushstring(L, args[1]);
-	lua_rawseti(L, -2, 0);
+	lua_pushstring(L, argv[1]);
+	lua_rawseti(L, -2, 1);
 	lua_setglobal(L, "arg");
 
-	if (luaL_loadfile(L, args[1]) || lua_pcall(L, 0, 0, 0))
+	if (luaL_loadfile(L, argv[1]) || lua_pcall(L, 0, 0, 0))
 	{
 		fprintf(stderr, "Error: %s\n", lua_tostring(L, -1));
 		err = 1;
