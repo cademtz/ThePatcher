@@ -10,7 +10,7 @@
 template <class T>
 CPortableExecutable* LuaPatcher_pe_Tmember(lua_State* L, T** out_Data);
 int minilua_checkargs(lua_State* L, const char* Fmt, ...);
-kern
+
 struct FuncPair
 {
 	const char* name;
