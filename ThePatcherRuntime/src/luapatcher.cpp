@@ -483,7 +483,7 @@ int CLuaPatcher::_dialog_msgbox(lua_State* L)
 	const char* pszContent = NULL;
 	minilua_checkargs(L, "ss", &pszTitle, &pszContent); // Just reading the string easier, argument can be nil
 
-	MessageBoxA(NULL, pszContent, pszTitle, NULL); // Kernel32!MessageBoxA does all of the type-safe checking
+	MessageBoxA(NULL, pszContent, pszTitle, NULL); // user32!MessageBoxA does all of the type-safe checking
 
 	return 0;
 }
