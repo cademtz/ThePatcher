@@ -27,12 +27,20 @@ function PortableExecutable.create(file, size)
 	local object = {}
 	object._inst = pe_api._new(file, size)
 
+	if (object._inst == nil) then
+		return nil
+	end
+
 	return setmetatable(object, PortableExecutable)
 end
 
 function CodeTraverse.create(pe)
 	local object = {}
 	object._inst = ct_api._new(pe._inst)
+
+	if (object._inst == nil) then
+		return nil
+	end
 
 	return setmetatable(object, CodeTraverse)
 end

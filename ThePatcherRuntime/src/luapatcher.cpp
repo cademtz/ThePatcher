@@ -10,6 +10,7 @@
 template <class T>
 CPortableExecutable* LuaPatcher_pe_Tmember(lua_State* L, T** out_Data);
 int minilua_checkargs(lua_State* L, const char* Fmt, ...);
+int minilua_error(lua_State* L, const char* Fmt, ...);
 
 struct FuncPair
 {
@@ -96,15 +97,15 @@ int CLuaPatcher::_pe_new(lua_State* L)
 	void**	usrdata;
 
 	if (!minilua_checkargs(L, "si", &fname, &maxsize) || maxsize <= 0)
-		return fprintf(stderr, "_pe_new: Bad arguments\n"), 0;
+		return minilua_error(L, "_pe_new: Bad arguments\n");
 
 	if (!(fdata = Util::GetFileData(fname, &flen)))
-		return fprintf(stderr, "_pe_new: Failed to read file '%s'\n", fname), 0;
+		return minilua_error(L, "_pe_new: Failed to read file '%s'\n", fname);
 
 	pe = new CPortableExecutable(fdata, flen, maxsize);
 
 	if (!pe->IsValid())
-		return delete pe, 0;
+		return delete pe, minilua_error(L, "_pe_new: PE data is invalid\n");
 
 	CLuaPatcher::PushNewInstance(L, pe);
 	return 1;
@@ -115,7 +116,7 @@ int CLuaPatcher::_pe_addr(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = (uint64_t)pe->ImgData(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_len(lua_State* L)
@@ -123,7 +124,7 @@ int CLuaPatcher::_pe_len(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = (uint64_t)pe->ImgLen(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_base(lua_State* L)
@@ -131,7 +132,7 @@ int CLuaPatcher::_pe_base(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = pe->ImageBase(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_codeaddr(lua_State* L)
@@ -139,7 +140,7 @@ int CLuaPatcher::_pe_codeaddr(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = (uint64_t)pe->ImgData() + pe->OptionalHeader().BaseOfCode(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_codelen(lua_State* L)
@@ -147,7 +148,7 @@ int CLuaPatcher::_pe_codelen(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = pe->OptionalHeader().SizeOfCode(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_entry(lua_State* L)
@@ -155,14 +156,14 @@ int CLuaPatcher::_pe_entry(lua_State* L)
 	uint64_t* usrdata;
 	if (CPortableExecutable* pe = LuaPatcher_pe_Tmember<uint64_t>(L, &usrdata))
 		return *usrdata = (uint64_t)pe->CodeEntry(), 1;
-	return 0;
+	return lua_pushnil(L), 1;
 }
 
 int CLuaPatcher::_pe_nexps(lua_State* L)
 {
 	CPortableExecutable* pe;
 	if (!minilua_checkargs(L, "l", &pe) || !pe->IsValid())
-		return fprintf(stderr, "_pe_nexps: Bad arguments\n"), 0;
+		return minilua_error(L, "_pe_nexps: Bad arguments\n");
 
 	lua_pushinteger(L, pe->Exports().size());
 	return 1;
@@ -177,7 +178,7 @@ int CLuaPatcher::_pe_exp(lua_State* L)
 
 	if (!minilua_checkargs(L, "li", &pe, &index) ||
 		!pe->IsValid() || index < 1 || index > pe->Exports().size())
-		return fprintf(stderr, "_pe_exp: Bad arguments\n"), 0;
+		return minilua_error(L, "_pe_exp: Bad arguments\n");
 
 	i = 0;
 	index -= 1; // LUA indexes start at 1
@@ -212,7 +213,7 @@ int CLuaPatcher::_pe_patchhex(lua_State* L)
 	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
 		len <= 0 ||
 		!pe->IsInBounds(*(void**)addr, len))
-		return fprintf(stderr, "_pe_patchhex: Bad arguments\n"), 0;
+		return printf("_pe_patchhex: Bad arguments\n"), lua_pushboolean(L, false), 1;
 
 	pos = *(char**)addr;
 
@@ -231,14 +232,14 @@ int CLuaPatcher::_pe_patchhex(lua_State* L)
 		else if (HEXCHAR_ISHEX(str[i]) && HEXCHAR_ISHEX(str[i + 1]))
 		{
 			if (!pe->IsInBounds(pos, 1))
-				return fprintf(stderr, "_pe_patchhex: Patch bytes went out of PE bounds\n"), 0;
+				return printf("_pe_patchhex: Patch bytes went out of PE bounds\n"), 0;
 			
 			*pos = (HEXCHAR_TOHEX(str[i]) << 4) | HEXCHAR_TOHEX(str[i + 1]);
 			++i;
 			++pos;
 		}
 		else
-			return fprintf(stderr, "_pe_patchhex: Bad format '%s' (char %d)\n", str, i), 0;
+			return printf("_pe_patchhex: Bad format '%s' (char %d)\n", str, i), 0;
 	}
 
 	return 0;
@@ -255,14 +256,14 @@ int CLuaPatcher::_pe_patch(lua_State* L)
 	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
 		len <= 0 ||
 		!pe->IsInBounds(*(void**)addr, len))
-		return fprintf(stderr, "_pe_patch: Bad arguments\n"), 0;
+		return minilua_error(L, "_pe_patch: Bad arguments\n");
 
 	pos = *(char**)addr;
 
 	lua_tolstring(L, -1, &len);
 
 	if (!pe->IsInBounds(pos + len, 1))
-		return fprintf(stderr, "_pe_patch: Patch bytes went out of PE bounds\n"), 0;
+		return minilua_error(L, "_pe_patch: Patch bytes went out of PE bounds\n");
 	
 	memcpy(pos, str, len);
 
@@ -276,18 +277,18 @@ int CLuaPatcher::_pe_save(lua_State* L)
 	FILE* file;
 
 	if (!minilua_checkargs(L, "ls", &pe, &fname) || !pe->IsValid())
-		return fprintf(stderr, "_pe_save: Bad arguments\n"), 0;
+		return printf("_pe_save: Bad arguments\n"), 0;
 
 	pe->WriteMappedToFile();
 
 	if (errno_t err = fopen_s(&file, fname, "wb"))
-		return fprintf(stderr, "_pe_save: Error %d opening file '%s'\n", err, fname), 0;
+		return printf("_pe_save: Error %d opening file '%s'\n", err, fname), 0;
 
 	if (fwrite(pe->FileData(), 1, pe->FileLen(), file) != pe->FileLen())
-		return fprintf(stderr, "_pe_save: Failed writing bytes to file '%s'\n", fname), 0;
+		return printf("_pe_save: Failed writing bytes to file '%s'\n", fname), 0;
 
 	if (fclose(file) == EOF)
-		return fprintf(stderr, "_pe_save: Failed to close file '%s'\n", fname), 0;
+		return printf("_pe_save: Failed to close file '%s'\n", fname), 0;
 
 	return 0;
 }
@@ -298,7 +299,7 @@ int CLuaPatcher::_ct_new(lua_State* L)
 	CTraverse* code;
 
 	if (!minilua_checkargs(L, "l", &pe) || !pe->IsValid())
-		return fprintf(stderr, "_ct_new: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_new: Bad arguments\n");
 
 	CLuaPatcher::PushNewInstance(L, new CTraverse(pe->ImgData(), pe->ImageBase(), pe->Is64bit()));
 
@@ -310,7 +311,7 @@ int CLuaPatcher::_ct_ndatas(lua_State* L)
 	CTraverse* code;
 
 	if (!minilua_checkargs(L, "l", &code))
-		return fprintf(stderr, "_ct_ndatas: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_ndatas: Bad arguments\n");
 
 	lua_pushinteger(L, code->Data().size());
 	return 1;
@@ -325,7 +326,7 @@ int CLuaPatcher::_ct_data(lua_State* L)
 
 	if (!minilua_checkargs(L, "li", &code, &index) ||
 		index < 1 || index > code->Data().size())
-		return fprintf(stderr, "_ct_data: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_data: Bad arguments\n");
 
 	i = 0;
 	index -= 1; // LUA indexes start at 1
@@ -343,7 +344,7 @@ int CLuaPatcher::_ct_nfuncs(lua_State* L)
 {
 	CTraverse* code;
 	if (!minilua_checkargs(L, "l", &code))
-		return fprintf(stderr, "_ct_nfuncs: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_nfuncs: Bad arguments\n");
 
 	lua_pushinteger(L, code->Funcs().size());
 	return 1;
@@ -358,7 +359,7 @@ int CLuaPatcher::_ct_func(lua_State* L)
 
 	if (!minilua_checkargs(L, "li", &code, &index)
 		|| index < 1 || index > code->Funcs().size())
-		return fprintf(stderr, "_ct_func: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_func: Bad arguments\n");
 
 	i = 0;
 	index -= 1; // LUA indexes start at 1
@@ -379,7 +380,7 @@ int CLuaPatcher::_ct_findfunc(lua_State* L)
 	const TraverseFunc* func;
 
 	if (!minilua_checkargs(L, "lu", &code, &addr))
-		return fprintf(stderr, "_ct_findfunc: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_findfunc: Bad arguments\n");
 
 	if (func = code->Find_Func(*(void**)addr))
 		PushTraverseFunc(L, func);
@@ -396,7 +397,7 @@ int CLuaPatcher::_ct_strref(lua_State* L)
 	const TraverseData* data = 0;
 
 	if (!minilua_checkargs(L, "ls", &code, &str))
-		return fprintf(stderr, "_ct_strref: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_strref: Bad arguments\n");
 
 	lua_newtable(L);
 
@@ -425,7 +426,7 @@ int CLuaPatcher::_ct_addpage(lua_State* L)
 	int flags;
 
 	if (!minilua_checkargs(L, "luui", &code, &addr, &len, &flags))
-		return fprintf(stderr, "_ct_addpage: Bad arguments\n"), 0;
+		return printf("_ct_addpage: Bad arguments\n"), 0;
 
 	code->AddPage(*(void**)addr, *len, (uint8_t)flags);
 
@@ -439,11 +440,11 @@ int CLuaPatcher::_ct_traverse(lua_State* L)
 	size_t oldcount;
 
 	if (!minilua_checkargs(L, "lu", &code, &addr))
-		return fprintf(stderr, "_ct_traverse: Bad arguments\n"), 0;
+		return printf("_ct_traverse: Bad arguments\n"), 0;
 
 	oldcount = code->Funcs().size();
 	if (!code->Traverse_Func(*(void**)addr))
-		return fprintf(stderr, "_ct_traverse: Failed to traverse location\n"), 0;
+		return printf("_ct_traverse: Failed to traverse location\n"), 0;
 
 	//printf("_ct_traverse: %zu new functions found\n", code->Funcs().size() - oldcount);
 
@@ -458,7 +459,7 @@ int CLuaPatcher::_ct_readstr(lua_State* L)
 	const char* str;
 
 	if (!minilua_checkargs(L, "lui", &code, &loc, &maxlen) || maxlen <= 0)
-		return fprintf(stderr, "_ct_readstr: Bad arguments\n"), 0;
+		return minilua_error(L, "_ct_readstr: Bad arguments\n");
 
 	lua_pushstring(L, code->Read_String(*(void**)loc, (size_t)maxlen + 1)); // Include null-terminator in size
 	return 1;
@@ -587,10 +588,10 @@ CPortableExecutable* LuaPatcher_pe_Tmember(lua_State* L, T** out_Data)
 	T* usrdata;
 
 	if (!minilua_checkargs(L, "l", &pe) || !pe->IsValid())
-		return fprintf(stderr, "LuaPatcher::_pe_Tmember: Bad arguments\n"), nullptr;
+		return printf( "LuaPatcher::_pe_Tmember: Bad arguments\n"), nullptr;
 
 	if (!(usrdata = (T*)lua_newuserdata(L, sizeof(T))))
-		return 0;
+		return printf("LuaPatcher::_pe_Tmember: NULL lua_newuserdata()"), nullptr;
 
 	*out_Data = usrdata;
 	return pe;
@@ -641,3 +642,15 @@ int minilua_checkargs(lua_State* L, const char* Fmt, ...)
 	return 1;
 }
 
+int minilua_error(lua_State* L, const char* Fmt, ...)
+{
+	va_list va;
+	va_start(va, Fmt);
+
+	vprintf(Fmt, va);;
+
+	va_end(va);
+
+	lua_pushnil(L);
+	return 1;
+}
