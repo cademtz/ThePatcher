@@ -4,3 +4,4 @@
 [submodule "deps/minilua"]
 	path = deps/minilua
 	url = https://github.com/edubart/minilua.git
+	branch = main
