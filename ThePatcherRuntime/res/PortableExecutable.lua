@@ -52,6 +52,8 @@ function PortableExecutable:BaseOfCode()			return pe_api._codeaddr(self._inst)		
 function PortableExecutable:EntryPoint()			return pe_api._entry(self._inst)					end
 function PortableExecutable:NumExports()			return pe_api._nexps(self._inst)					end
 function PortableExecutable:Export(index)			return pe_api._exp(self._inst, index)				end
+function PortableExecutable:NumRoutines()			return pe_api._nrtns(self._inst)					end
+function PortableExecutable:Routine(index)			return pe_api._rtn(self._inst, index)				end
 function PortableExecutable:Patch(addr, bytes)		return pe_api._patch(self._inst, addr, bytes)		end
 function PortableExecutable:PatchHex(addr, bytes)	return pe_api._patchhex(self._inst, addr, bytes)	end
 function PortableExecutable:Save(fname)				return pe_api._save(self._inst, fname)				end
@@ -67,5 +69,5 @@ function CodeTraverse:AddPage(addr, len, flags)	return ct_api._addpage(self._ins
 function CodeTraverse:ReadString(addr, maxlen)	return ct_api._readstr(self._inst, addr, maxlen)		end
 
 -- All args are optional
-function Dialog.File(path, title)		return dialog_api._file(path, title)		end
-function Dialog.Msgbox(title, content)	return dialog_api._msgbox(title, content)	end
+function Dialog.File(path, title)		return dlg_api._file(path, title)		end
+function Dialog.Msgbox(title, content)	return dlg_api._msgbox(title, content)	end

@@ -35,7 +35,7 @@ namespace ThePatcher
 
 			if (name == null || name.Length < 1)
 				name = script;
-			if (desc.Length < 1)
+			if (desc != null && desc.Length < 1)
 				desc = null; // Indicate "No description provided" with null
 
 			result = new PatcherScript {

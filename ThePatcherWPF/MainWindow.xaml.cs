@@ -133,7 +133,7 @@ namespace ThePatcherWPF
 
 			executeBtn.Visibility = Visibility.Visible;
 
-			scriptDesc.Text = script.Desc.Replace("\\n", Environment.NewLine);
+			scriptDesc.Text = script.Desc == null ? null : script.Desc.Replace("\\n", Environment.NewLine);
 			scriptImage.Source = script.Image == null ? null : new BitmapImage(new Uri(script.Image));
 		}
     }

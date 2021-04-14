@@ -25,6 +25,8 @@ public:
 	static int _pe_entry(lua_State* L);
 	static int _pe_nexps(lua_State* L);
 	static int _pe_exp(lua_State* L);
+	static int _pe_nrtns(lua_State* L);
+	static int _pe_rtn(lua_State* L);
 	static int _pe_patch(lua_State* L);
 	static int _pe_patchhex(lua_State* L);
 	static int _pe_save(lua_State* L);
@@ -40,8 +42,8 @@ public:
 	static int _ct_traverse(lua_State* L);
 	static int _ct_readstr(lua_State* L);
 
-	static int _dialog_file(lua_State* L);
-	static int _dialog_msgbox(lua_State* L);
+	static int _dlg_file(lua_State* L);
+	static int _dlg_msgbox(lua_State* L);
 
 private:
 	/**@brief	Ensures pointer is deleted when owning LuaPatcher instance closes */

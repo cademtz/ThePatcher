@@ -28,6 +28,8 @@ static const FuncPair pe_api_funcs[] = {
 	{"_entry",		&CLuaPatcher::_pe_entry},
 	{"_nexps",		&CLuaPatcher::_pe_nexps},
 	{"_exp",		&CLuaPatcher::_pe_exp},
+	{"_nrtns",		&CLuaPatcher::_pe_nrtns},
+	{"_rtn",		&CLuaPatcher::_pe_rtn},
 	{"_patch",		&CLuaPatcher::_pe_patch},
 	{"_patchhex",	&CLuaPatcher::_pe_patchhex},
 	{"_save",		&CLuaPatcher::_pe_save},
@@ -48,9 +50,9 @@ static const FuncPair ct_api_funcs[] = {
 	{NULL, NULL}
 };
 
-static const FuncPair dialog_api_funcs[] = {
-	{"_file",	&CLuaPatcher::_dialog_file},
-	{"_msgbox", &CLuaPatcher::_dialog_msgbox},
+static const FuncPair dlg_api_funcs[] = {
+	{"_file",	&CLuaPatcher::_dlg_file},
+	{"_msgbox", &CLuaPatcher::_dlg_msgbox},
 	{NULL, NULL}
 };
 
@@ -58,7 +60,7 @@ static const std::pair<const char*, const FuncPair*> apis[] =
 {
 	{ "pe_api",		pe_api_funcs },
 	{ "ct_api",		ct_api_funcs },
-	{ "dialog_api", dialog_api_funcs },
+	{ "dlg_api",	dlg_api_funcs },
 };
 
 CLuaPatcher::CLuaPatcher(lua_State* L) : m_state(L)
@@ -94,7 +96,6 @@ int CLuaPatcher::_pe_new(lua_State* L)
 	size_t	flen;
 	char*	fdata;
 	CPortableExecutable* pe;
-	void**	usrdata;
 
 	if (!minilua_checkargs(L, "si", &fname, &maxsize) || maxsize <= 0)
 		return minilua_error(L, "_pe_new: Bad arguments\n");
@@ -202,17 +203,47 @@ int CLuaPatcher::_pe_exp(lua_State* L)
 	return 1;
 }
 
+int CLuaPatcher::_pe_nrtns(lua_State* L)
+{
+	CPortableExecutable* pe;
+	if (!minilua_checkargs(L, "l", &pe) || !pe->IsValid())
+		return minilua_error(L, "_pe_nrtns: Bad arguments\n");
+
+	lua_pushinteger(L, pe->Routines().size());
+	return 1;
+}
+
+int CLuaPatcher::_pe_rtn(lua_State* L)
+{
+	CPortableExecutable* pe;
+	int		index;
+	void*	rtn = 0;
+	size_t	i;
+
+	if (!minilua_checkargs(L, "li", &pe, &index) ||
+		!pe->IsValid() || index < 1 || index > pe->Routines().size())
+		return minilua_error(L, "_pe_rtn: Bad arguments\n");
+
+	i = 0;
+	index -= 1; // LUA indexes start at 1
+	for (auto it = pe->Routines().cbegin(); it != pe->Routines().cend() && i <= index; ++it, ++i)
+	{
+		if (i == index)
+			rtn = *it;
+	}
+
+	PushAddress(L, rtn);
+	return 1;
+}
+
 int CLuaPatcher::_pe_patchhex(lua_State* L)
 {
 	CPortableExecutable* pe;
-	uint64_t* addr;
-	int len = 1;
-	const char* str;
-	char* pos;
+	uint64_t*	addr;
+	const char*	str;
+	char*		pos;
 
-	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
-		len <= 0 ||
-		!pe->IsInBounds(*(void**)addr, len))
+	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) || !pe->IsInBounds(*(void**)addr))
 		return printf("_pe_patchhex: Bad arguments\n"), lua_pushboolean(L, false), 1;
 
 	pos = *(char**)addr;
@@ -248,13 +279,12 @@ int CLuaPatcher::_pe_patchhex(lua_State* L)
 int CLuaPatcher::_pe_patch(lua_State* L)
 {
 	CPortableExecutable* pe;
-	uint64_t* addr;
-	size_t len = 1;
-	const char* str;
-	char* pos;
+	uint64_t*	addr;
+	const char*	str;
+	char*	pos;
+	size_t	len = 0;
 
 	if (!minilua_checkargs(L, "lus", &pe, &addr, &str) ||
-		len <= 0 ||
 		!pe->IsInBounds(*(void**)addr, len))
 		return minilua_error(L, "_pe_patch: Bad arguments\n");
 
@@ -465,7 +495,7 @@ int CLuaPatcher::_ct_readstr(lua_State* L)
 	return 1;
 }
 
-int CLuaPatcher::_dialog_file(lua_State* L)
+int CLuaPatcher::_dlg_file(lua_State* L)
 {
 	const char* title = NULL, * path = NULL;
 	char buf[MAX_PATH] = { 0 };
@@ -477,7 +507,7 @@ int CLuaPatcher::_dialog_file(lua_State* L)
 	return 1;
 }
 
-int CLuaPatcher::_dialog_msgbox(lua_State* L)
+int CLuaPatcher::_dlg_msgbox(lua_State* L)
 {
 	const char* pszTitle = NULL;
 	const char* pszContent = NULL;
