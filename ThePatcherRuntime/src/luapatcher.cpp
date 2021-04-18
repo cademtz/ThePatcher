@@ -396,7 +396,7 @@ int CLuaPatcher::_ct_func(lua_State* L)
 	for (auto it = code->Funcs().cbegin(); it != code->Funcs().cend() && i <= index; ++it, ++i)
 	{
 		if (i == index)
-			func = &(*it);
+			func = &(*it).second;
 	}
 
 	PushTraverseFunc(L, func);
